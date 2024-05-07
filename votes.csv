@@ -1,0 +1,2 @@
+Date,Reference,Title
+"<div class=""voting-box-date"">{{ v.date }}</div>","<div class=""voting-box-ref"" v-if=""v.ref"">{{ v.ref.join() }}</div>","<div class=""voting-box-name"" v-if=""v.mainTitle"">{{ v.mainTitle }}</div>"

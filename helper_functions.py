@@ -34,9 +34,9 @@ def test_thresholds(df, thresholds):
         sum_RM = result_df['RM'].sum()
         sum_LM = result_df['LM'].sum()
 
-        perc_Con = round(sum_Consensus/total_votes_leg, 2)
-        perc_RM = round(sum_RM/total_votes_leg, 2)
-        perc_LM = round(sum_LM/total_votes_leg, 2)
+        perc_Con = round(sum_Consensus/df.shape[0], 2)
+        perc_RM = round(sum_RM/df.shape[0], 2)
+        perc_LM = round(sum_LM/df.shape[0], 2)
 
         # Store the results in the DataFrame under the current threshold
         threshold_df.loc[item] = [sum_Consensus, perc_Con, sum_RM, perc_RM, sum_LM, perc_LM]

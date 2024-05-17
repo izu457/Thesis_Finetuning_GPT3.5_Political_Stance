@@ -97,7 +97,7 @@ def construct_report_links(df):
     base_url = "https://oeil.secure.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference="
     # split string at second / and replace with (
     str_parts = df_copy['Interinstitutional file number'].str.split("/")
-    df['Interinstitutional file number'] = str_parts.str[0] + "/" + str_parts.str[1] + '(' + str_parts.str[2] + ')'
+    df_copy['Interinstitutional file number'] = str_parts.str[0] + "/" + str_parts.str[1] + '(' + str_parts.str[2] + ')'
     # create new column for report links
     df['Report link'] = base_url + df_copy['Interinstitutional file number'].astype(str)
     return df
@@ -144,6 +144,8 @@ def extract_summary_links(urls):
                     if result:
                         summary_links.append(result)
                         print(f"Links extracted: {len(summary_links)}", end='\r')
+                    else:
+                        summary_links.append("NA")
                 except Exception as exc:
                     print(f'{url} generated an exception: {exc}')
                     summary_links.append("NA")
@@ -195,66 +197,3 @@ def extract_summary_texts(urls):
                 except Exception as exc:
                         print(f'{url} generated an exception: {exc}')
     return summaries
-
-# def extract_summary_links_old(urls):
-#     """
-#     Takes each given link, parses html, finds "button" with id "summary", and combines 
-#     summary link with base url to create a list of summary links.
-#     """
-#     summary_links = []
-#     for url in urls:
-#         # get html from url
-#         response = requests.get(url).text
-#         # parse html
-#         soup = BeautifulSoup(response, 'html.parser')
-#         # find all "button" elements with id "summary"
-#         button = soup.find("button", {"id": "summary"})
-#         # extract the link from the "data-url" attribute
-#         onclick_content = [button[attr].split("'")[1] for attr in button.attrs if 'onclick' in attr]
-#         summary_link = "https://oeil.secure.europarl.europa.eu" + str(onclick_content[0])
-#         #print(summary_link)
-#         summary_links.append(summary_link)
-#         print(f"Links extracted: {len(summary_links)}", end='\r')
-#         time.sleep(1)  # added to make the updating visible if loop is fast
-#     # Print final count on a new line once all URLs are processed
-#     print(f"Total links extracted: {len(summary_links)}")
-#     return summary_links
-
-# def get_majorities_old(df, threshold):
-#     for index, row in df.iterrows():
-#         if row["EPP"] >= threshold and row["S&D"] >= threshold:
-#             df.loc[index, 'Consensus'] = 1
-#             df.loc[index, 'RM'] = 0
-#             df.loc[index, 'LM'] = 0
-#         elif row["S&D"] >= threshold:
-#             df.loc[index, 'LM'] = 1
-#             df.loc[index, 'RM'] = 0
-#         elif row["EPP"] >= threshold:
-#             df.loc[index, 'RM'] = 1
-#             df.loc[index, 'LM'] = 0
-#         else:
-#             df.loc[index, 'RM'] = 0
-#             df.loc[index, 'LM'] = 0
-#             df.loc[index, 'Consensus'] = 0
-#     return df
-
-# def test_thresholds_old(df, thresholds):
-#     # set up empty dataframe to store thresholds
-#     threshold_df = pd.DataFrame(index=thresholds, columns=['Consensus', 'RM', 'LM'])
-#     for threshold in thresholds:
-#         df_copy = df.copy()
-#         print(f"Before get_majorities for threshold {threshold}:")
-
-#         df_processed = get_majorities(df_copy, threshold)
-        
-#         print(f"After get_majorities for threshold {threshold}:")
-
-#         sum_Consensus = df_processed['Consensus'].sum()
-#         sum_RM = df_processed['RM'].sum()
-#         sum_LM = df_processed['LM'].sum()
-
-#         # Set the results for this threshold in the dataframe
-#         threshold_df.loc[threshold] = [sum_Consensus, sum_RM, sum_LM]
-
-
-#     return threshold_df

@@ -21,15 +21,15 @@ def get_majorities(df, threshold):
     binary value for each vote indicating if it is part of the majority.
     """
     # Create new DataFrame columns as calculations (not modifying the original df)
-    consensus = (df['EPP%'] >= threshold) & (df['S&D%'] >= threshold)
+    majority = (df['EPP%'] >= threshold) & (df['S&D%'] >= threshold)
     rm = (df['EPP%'] >= threshold) & (df['S&D%'] < threshold)
     lm = (df['S&D%'] >= threshold) & (df['EPP%'] < threshold)
 
     # Return the results as a new DataFrame
     result = pd.DataFrame(index=df.index, data={
-        'Consensus': consensus.astype(int),
-        'RM': rm.astype(int),
-        'LM': lm.astype(int)
+        'General Majority': majority.astype(int),
+        'Right Majority': rm.astype(int),
+        'Left Majority': lm.astype(int)
     })
     return result
 
@@ -41,7 +41,7 @@ def test_thresholds(df, thresholds):
     threshold.
     """
     # Prepare a DataFrame to store the results
-    threshold_df = pd.DataFrame(index=thresholds, columns=['Consensus', "Consensus%", 'RM', "RM%", 'LM', "LM%"])
+    threshold_df = pd.DataFrame(index=thresholds, columns=['General Majority', "GM%", 'Right Majority', "RM%", 'Left Majority', "LM%"])
 
     # Create a deep copy of the DataFrame to avoid any mutation
     df_copy = df.copy(deep=True)
@@ -49,16 +49,16 @@ def test_thresholds(df, thresholds):
     for item in thresholds:
         # Apply the get_majorities to get the counts
         result_df = get_majorities(df_copy, item)
-        sum_Consensus = result_df['Consensus'].sum()
-        sum_RM = result_df['RM'].sum()
-        sum_LM = result_df['LM'].sum()
+        sum_Majority = result_df['General Majority'].sum()
+        sum_RM = result_df['Right Majority'].sum()
+        sum_LM = result_df['Left Majority'].sum()
 
-        perc_Con = round(sum_Consensus/df.shape[0], 2)
+        perc_Con = round(sum_Majority/df.shape[0], 2)
         perc_RM = round(sum_RM/df.shape[0], 2)
         perc_LM = round(sum_LM/df.shape[0], 2)
 
         # Store the results in the DataFrame under the current threshold
-        threshold_df.loc[item] = [sum_Consensus, perc_Con, sum_RM, perc_RM, sum_LM, perc_LM]
+        threshold_df.loc[item] = [sum_Majority, perc_Con, sum_RM, perc_RM, sum_LM, perc_LM]
     # rename index
     threshold_df.index.name = 'Threshold'
     return threshold_df

@@ -114,6 +114,8 @@ def fetch_summary_link(url, session):
         soup = BeautifulSoup(response.text, 'html.parser')
         # Find the "button" element with id "summary"
         button = soup.find("button", {"id": "summary"})
+        # print number of elements in button
+        print(f"Number of elements in button: {len(button)}")
         if button and 'onclick' in button.attrs:
             # Extract the link directly from the onclick attribute
             onclick_content = button['onclick'].split("'")[1]
@@ -152,7 +154,27 @@ def extract_summary_links(urls):
     # Print final count on a new line once all URLs are processed
     print("\nTotal links extracted:", len(summary_links))
     return summary_links
+    
+def fetch_summary_texts(url):
+    """
+    Fetch the content of a URL and process the HTML to extract cleaned summary text.
+    """
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        print(soup)
+    # Find the element using a regex to flexibly match the string
+        summary_elements = soup.find_all('span', lang="EN-GB")
+        # if hyperlink in summary, extract text from hyperlink
+        print(summary_elements)
 
+        if summary_elements:
+            summary_text = " ".join(re.sub(r'\s+', ' ', item.text.strip()) for item in summary_elements)
+            return summary_text
+        return None
+    except requests.RequestException as e:
+        print(f"Failed to retrieve or parse {url}: {e}")
+        return "NA"
 
 def fetch_summary_texts(url, session):
     """

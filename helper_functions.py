@@ -13,11 +13,43 @@ import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 
 
-def read_xlsx(file):
+# def read_xlsx(file):
+#     """
+#     Reads an Excel file and returns a DataFrame.
+#     """
+#     df = pd.read_excel(file, header=0)
+#     return df
+
+def count_procedure(df):
     """
-    Reads an Excel file and returns a DataFrame.
+    Takes a DataFrame and returns a Series with the percentage of votes accepted or rejected per reading.
     """
-    df = pd.read_excel(file, header=0)
+    votes_first_reading_perc = df[df['Procedure'] == '***I'].shape[0]/df.shape[0]
+    print(f"Between 2019-2022, {votes_first_reading_perc:.2%} of votes were accepted or rejected after the first reading.")
+    votes_second_reading_perc = df[df['Procedure'] == '***II'].shape[0]/df.shape[0]
+    print(f"Between 2019-2022, {votes_second_reading_perc:.2%} of votes were accepted or rejected after the second reading.")
+    votes_third_reading_perc = df[df['Procedure'] == '***III'].shape[0]/df.shape[0]
+    print(f"Between 2019-2022, {votes_third_reading_perc:.2%} of votes were accepted or rejected after the third reading.")
+    votes_other_perc = df[df['Procedure'] == '***'].shape[0]/df.shape[0]
+    print(f"Between 2019-2022, {votes_other_perc:.2%} of votes were on resolutions or motions of resolutions initiated by the parliament.")
+    # return series with percentage of votes for each procedure
+    return pd.Series([votes_first_reading_perc, votes_second_reading_perc, votes_third_reading_perc, votes_other_perc])
+
+def party_abbr(df):
+    """
+    Takes a DataFrame and returns a DataFrame with aligned party group abbreviations.
+    """
+    df['EPG'] = df['EPG'].replace('Group of the European People\'s Party (Christian Democrats)', 'EPP')
+    df['EPG'] = df['EPG'].replace('European Conservatives and Reformists Group', 'ECR')
+    df['EPG'] = df['EPG'].replace('Group of the Greens/European Free Alliance', 'Greens/EFA')
+    df['EPG'] = df['EPG'].replace('Group of the Alliance of Liberals and Democrats for Europe', 'REG')
+    df['EPG'] = df['EPG'].replace('Group of the Progressive Alliance of Socialists and Democrats in the European Parliament', 'S&D')
+    df['EPG'] = df['EPG'].replace('Non-attached Members', 'NI')
+    df['EPG'] = df['EPG'].replace('Confederal Group of the European United Left - Nordic Green Left', 'The Left')
+    df['EPG'] = df['EPG'].replace('Europe of Freedom and Direct Democracy Group', 'EFD/IDG')
+    df['EPG'] = df['EPG'].replace('Europe of freedom and democracy Group', 'EFD/IDG')
+    df['EPG'] = df['EPG'].replace('Europe of Nations and Freedom Group', 'EFD/IDG')
+    df['EPG'] = df['EPG'].replace('IDG', 'EFD/IDG')
     return df
 
 def get_majorities(df, threshold):

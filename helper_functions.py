@@ -12,6 +12,14 @@ import re
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 
+
+def read_xlsx(file):
+    """
+    Reads an Excel file and returns a DataFrame.
+    """
+    df = pd.read_excel(file, header=0)
+    return df
+
 def get_majorities(df, threshold):
     """
     Takes a DataFrame and a threshold. The threshold defines which percentage of votes

@@ -13,12 +13,12 @@ import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 
 
-# def read_xlsx(file):
-#     """
-#     Reads an Excel file and returns a DataFrame.
-#     """
-#     df = pd.read_excel(file, header=0)
-#     return df
+def read_xlsx(file):
+    """
+    Reads an Excel file and returns a DataFrame.
+    """
+    df = pd.read_excel(file, header=0)
+    return df
 
 def count_procedure(df):
     """
@@ -157,58 +157,120 @@ def construct_report_links(df):
     df['Report link'] = base_url + df_copy['Interinstitutional file number'].astype(str)
     return df
 
-def fetch_summary_link(url, session):
+def fetch_summary_link(url):
     """
     Fetches HTML content for a given URL, parses it, and extracts the summary link.
     """
     try:
-        # Get HTML from the URL using a session object for better performance
-        response = session.get(url)
+        # Get HTML from the URL
+        response = requests.get(url)
         response.raise_for_status()  # Raises an HTTPError for bad responses
         # Parse HTML
         soup = BeautifulSoup(response.text, 'html.parser')
-        # Find the "button" element with id "summary"
-        button = soup.find("button", {"id": "summary"})
-        # print number of elements in button
-        print(f"Number of elements in button: {len(button)}")
-        if button and 'onclick' in button.attrs:
-            # Extract the link directly from the onclick attribute
-            onclick_content = button['onclick'].split("'")[1]
-            summary_link = "https://oeil.secure.europarl.europa.eu" + onclick_content
-            #print(f"Extracted summary link: {summary_link}")
-            return summary_link
-        return None
+        # Find all "button" elements with id "summary"
+        buttons = soup.find_all("button", {"id": "summary"})
+        # Iterate over found buttons to find the one with the specific title
+        #for button in buttons:
+        #    if button.get('title') == "Summary for Legislative proposal published":
+        #        print(button)
+        for button in buttons:
+            if (
+                button.get('title') == "Summary for Legislative proposal published"
+                ) or (
+                    "Summary for Committee report tabled for plenary, 1st reading" in button.get('title')
+                      ) or (
+                          button.get('title') == "Summary for Preparatory document"
+                          ):
+                # Check if the button has an 'onclick' attribute
+                if 'onclick' in button.attrs:
+                    # Extract the link directly from the onclick attribute
+                    onclick_content = button['onclick'].split("'")[1]
+                    summary_link = "https://oeil.secure.europarl.europa.eu" + onclick_content
+                    return summary_link
+            elif "Summary for Decision by Parliament" in button.get('title'):
+                # Check if the button has an 'onclick' attribute
+                if 'onclick' in button.attrs:
+                    # Extract the link directly from the onclick attribute
+                    onclick_content = button['onclick'].split("'")[1]
+                    summary_link = "https://oeil.secure.europarl.europa.eu" + onclick_content
+                    return summary_link
+        return None  # Return None if no matching button is found
     except requests.RequestException as e:
         print(f"Failed to retrieve or parse {url}: {e}")
         return "NA"
-
+    
 def extract_summary_links(urls):
     """
-    Processes a list of URLs in parallel to extract summary links.
-    Source: https://docs.python.org/3/library/concurrent.futures.html, Example
+    Processes a list of URLs sequentially to extract summary links.
     """
     summary_links = []
-    # Use requests.Session for connection pooling
-    with requests.Session() as session:
-        # Use ThreadPoolExecutor to execute requests in parallel
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            # Map fetch_summary_link function over all URLs with the session passed
-            future_to_url = {executor.submit(fetch_summary_link, url, session): url for url in urls}
-            for future in concurrent.futures.as_completed(future_to_url):
-                url = future_to_url[future]
-                try:
-                    result = future.result()
-                    if result:
-                        summary_links.append(result)
-                        print(f"Links extracted: {len(summary_links)}", end='\r')
-                    else:
-                        summary_links.append("NA")
-                except Exception as exc:
-                    print(f'{url} generated an exception: {exc}')
-                    summary_links.append("NA")
+    for url in urls:
+        try:
+            result = fetch_summary_link(url)
+            if result:
+                summary_links.append(result)
+                print(f"Links requested: {len(summary_links)}", end='\r')
+            else:
+                summary_links.append("NA")
+        except Exception as exc:
+            print(f'{url} generated an exception: {exc}')
+            summary_links.append("NA")
     # Print final count on a new line once all URLs are processed
-    print("\nTotal links extracted:", len(summary_links))
+    print(f"\nTotal links successfully extracted {len(summary_links) - summary_links.count("NA")} out of {len(summary_links)}")
     return summary_links
+
+# def fetch_summary_link(url, session):
+#     """
+#     Fetches HTML content for a given URL, parses it, and extracts the summary link.
+#     """
+#     try:
+#         # Get HTML from the URL using a session object for better performance
+#         response = session.get(url)
+#         response.raise_for_status()  # Raises an HTTPError for bad responses
+#         # Parse HTML
+#         soup = BeautifulSoup(response.text, 'html.parser')
+#         # Find the "button" element with id "summary"
+#         button = soup.find("button", {"id": "summary"})
+#         # print number of elements in button
+#         print(f"Number of elements in button: {len(button)}")
+#         if button and 'onclick' in button.attrs:
+#             # Extract the link directly from the onclick attribute
+#             onclick_content = button['onclick'].split("'")[1]
+#             summary_link = "https://oeil.secure.europarl.europa.eu" + onclick_content
+#             #print(f"Extracted summary link: {summary_link}")
+#             return summary_link
+#         return None
+#     except requests.RequestException as e:
+#         print(f"Failed to retrieve or parse {url}: {e}")
+#         return "NA"
+
+# def extract_summary_links(urls):
+#     """
+#     Processes a list of URLs in parallel to extract summary links.
+#     Source: https://docs.python.org/3/library/concurrent.futures.html, Example
+#     """
+#     summary_links = []
+#     # Use requests.Session for connection pooling
+#     with requests.Session() as session:
+#         # Use ThreadPoolExecutor to execute requests in parallel
+#         with ThreadPoolExecutor(max_workers=10) as executor:
+#             # Map fetch_summary_link function over all URLs with the session passed
+#             future_to_url = {executor.submit(fetch_summary_link, url, session): url for url in urls}
+#             for future in concurrent.futures.as_completed(future_to_url):
+#                 url = future_to_url[future]
+#                 try:
+#                     result = future.result()
+#                     if result:
+#                         summary_links.append(result)
+#                         print(f"Links extracted: {len(summary_links)}", end='\r')
+#                     else:
+#                         summary_links.append("NA")
+#                 except Exception as exc:
+#                     print(f'{url} generated an exception: {exc}')
+#                     summary_links.append("NA")
+#     # Print final count on a new line once all URLs are processed
+#     print("\nTotal links extracted:", len(summary_links))
+#     return summary_links
     
 def fetch_summary_texts(url):
     """
@@ -231,12 +293,12 @@ def fetch_summary_texts(url):
         print(f"Failed to retrieve or parse {url}: {e}")
         return "NA"
 
-def fetch_summary_texts(url, session):
+def fetch_summary_texts(url):
     """
     Fetch the content of a URL and process the HTML to extract cleaned summary text.
     """
     try:
-        response = session.get(url)
+        response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
     # Find the element using a regex to flexibly match the string
         summary_elements = soup.find_all('span', lang="EN-GB")
@@ -255,22 +317,61 @@ def extract_summary_texts(urls):
     Returns a list of summary texts.
     """
     summaries = []
-    # Create a session object
-    with requests.Session() as session:
-        # Use ThreadPoolExecutor to execute requests in parallel
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            # executor class should only be used via subclass such as map
-            # Map lets fetch_and_process function be executed asynchronously with several calls in parallel
-            future_to_url = {executor.submit(fetch_summary_texts, url, session): url for url in urls}
-            for future in concurrent.futures.as_completed(future_to_url):
-                url = future_to_url[future]
-                try:
-                    results = future.result()
-                    if results:
-                        summaries.append(results)
-                        print(f"Summaries extracted: {len(summaries)}", end='\r')
-                    else:
-                        summaries.append("NA")
-                except Exception as exc:
-                        print(f'{url} generated an exception: {exc}')
+    for url in urls:
+        try:
+            result = fetch_summary_texts(url)
+            if result:
+                summaries.append(result)
+                print(f"Summaries extracted: {len(summaries)}", end='\r')
+            else:
+                summaries.append("NA")
+        except Exception as exc:
+            print(f'{url} generated an exception: {exc}')
+    # Print final count on a new line once all URLs are processed
+    print(f"\nTotal summaries successfully extracted {len(summaries) - summaries.count("NA")} out of {len(summaries)}")
     return summaries
+
+
+# def fetch_summary_texts(url, session):
+#     """
+#     Fetch the content of a URL and process the HTML to extract cleaned summary text.
+#     """
+#     try:
+#         response = session.get(url)
+#         soup = BeautifulSoup(response.text, 'html.parser')
+#     # Find the element using a regex to flexibly match the string
+#         summary_elements = soup.find_all('span', lang="EN-GB")
+#         if summary_elements:
+#             summary_text = " ".join(re.sub(r'\s+', ' ', item.text.strip()) for item in summary_elements)
+#             return summary_text
+#         return None
+#     except requests.RequestException as e:
+#         print(f"Failed to retrieve or parse {url}: {e}")
+#         return "NA"
+
+# def extract_summary_texts(urls):
+#     """
+#     Takes a list of urls and extracts the summary text from the html of the page
+#     by combining all the paragraphs of the summary into one string.
+#     Returns a list of summary texts.
+#     """
+#     summaries = []
+#     # Create a session object
+#     with requests.Session() as session:
+#         # Use ThreadPoolExecutor to execute requests in parallel
+#         with ThreadPoolExecutor(max_workers=10) as executor:
+#             # executor class should only be used via subclass such as map
+#             # Map lets fetch_and_process function be executed asynchronously with several calls in parallel
+#             future_to_url = {executor.submit(fetch_summary_texts, url, session): url for url in urls}
+#             for future in concurrent.futures.as_completed(future_to_url):
+#                 url = future_to_url[future]
+#                 try:
+#                     results = future.result()
+#                     if results:
+#                         summaries.append(results)
+#                         print(f"Summaries extracted: {len(summaries)}", end='\r')
+#                     else:
+#                         summaries.append("NA")
+#                 except Exception as exc:
+#                         print(f'{url} generated an exception: {exc}')
+#     return summaries

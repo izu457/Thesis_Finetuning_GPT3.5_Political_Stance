@@ -52,6 +52,21 @@ def party_abbr(df):
     df['EPG'] = df['EPG'].replace('IDG', 'EFD/IDG')
     return df
 
+def calculate_percentage_votes(meps_grouped_df, group_members_df, period):
+    """
+    Takes a dataframe with grouped MEPs and a dataframe with the number of members in each group and period.
+    Calculates the sum and percentage of votes in favour for each group.
+    """
+    # Create a copy of the dataframe to avoid modifying the original data
+    df = meps_grouped_df.copy()
+    # Map the number of members to each row using the group column
+    df['members'] = df['EPG'].map(group_members_df[period])
+    # Calculate 'Sum_in_favour' as integer
+    df['Sum_in_favour'] = df['Vote'].astype(int)
+    # Calculate the percentage by the number of members in the party found in group_members
+    df['Perc_in_favour'] = (df['Vote'] / df['members']).round(3).astype(float)
+    return df
+
 def get_majorities(df, threshold):
     """
     Takes a DataFrame and a threshold. The threshold defines which percentage of votes

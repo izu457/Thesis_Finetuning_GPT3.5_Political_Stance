@@ -275,16 +275,20 @@ def extract_summary_links(urls):
 def fetch_summary_texts(url):
     """
     Fetch the content of a URL and process the HTML to extract cleaned summary text.
+    Two types of encoding of text in htmls are considered.
     """
     try:
         response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad status codes
         soup = BeautifulSoup(response.text, 'html.parser')
-        print(soup)
-    # Find the element using a regex to flexibly match the string
+        # type 1 of htmls
         summary_elements = soup.find_all('span', lang="EN-GB")
         # if hyperlink in summary, extract text from hyperlink
-        print(summary_elements)
-
+        if summary_elements:
+            summary_text = " ".join(re.sub(r'\s+', ' ', item.text.strip()) for item in summary_elements)
+            return summary_text
+        # type 2 of htmls
+        summary_elements = soup.find_all('p', style="text-align: justify;")
         if summary_elements:
             summary_text = " ".join(re.sub(r'\s+', ' ', item.text.strip()) for item in summary_elements)
             return summary_text
@@ -292,24 +296,7 @@ def fetch_summary_texts(url):
     except requests.RequestException as e:
         print(f"Failed to retrieve or parse {url}: {e}")
         return "NA"
-
-def fetch_summary_texts(url):
-    """
-    Fetch the content of a URL and process the HTML to extract cleaned summary text.
-    """
-    try:
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-    # Find the element using a regex to flexibly match the string
-        summary_elements = soup.find_all('span', lang="EN-GB")
-        if summary_elements:
-            summary_text = " ".join(re.sub(r'\s+', ' ', item.text.strip()) for item in summary_elements)
-            return summary_text
-        return None
-    except requests.RequestException as e:
-        print(f"Failed to retrieve or parse {url}: {e}")
-        return "NA"
-
+    
 def extract_summary_texts(urls):
     """
     Takes a list of urls and extracts the summary text from the html of the page
@@ -330,7 +317,6 @@ def extract_summary_texts(urls):
     # Print final count on a new line once all URLs are processed
     print(f"\nTotal summaries successfully extracted {len(summaries) - summaries.count("NA")} out of {len(summaries)}")
     return summaries
-
 
 # def fetch_summary_texts(url, session):
 #     """

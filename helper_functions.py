@@ -76,9 +76,9 @@ def get_majorities(df, threshold):
     binary value for each vote indicating if it is part of the majority.
     """
     # Create new DataFrame columns as calculations (not modifying the original df)
-    majority = (df['EPP%'] >= threshold) & (df['S&D%'] >= threshold)
-    rm = (df['EPP%'] >= threshold) & (df['S&D%'] < threshold)
-    lm = (df['S&D%'] >= threshold) & (df['EPP%'] < threshold)
+    majority = (df['ECR%'] >= threshold) & (df['S&D%'] >= threshold)
+    rm = (df['ECR%'] >= threshold) & (df['EFD/IDG%'] >= threshold) & (df['EPP%'] >= threshold) & (df['Greens/EFA%'] < threshold) & (df['The Left%'] < threshold)
+    lm = (df['ECR%'] < threshold) & (df['EFD/IDG%'] < threshold) & (df['S&D%'] >= threshold) & (df['Greens/EFA%'] >= threshold) & (df['The Left%'] >= threshold)
 
     # Return the results as a new DataFrame
     result = pd.DataFrame(index=df.index, data={

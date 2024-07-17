@@ -9,8 +9,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 import re
-import concurrent.futures
-from concurrent.futures import ThreadPoolExecutor
+import random
 
 
 def read_xlsx(file):

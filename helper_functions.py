@@ -356,3 +356,36 @@ def split_select_data(data, training_fraction):
     print(training.shape)
     print(testing.shape)
     return training, testing
+
+def create_json(data):
+   """
+   Creates a json file from training or testing data to convert it to a format that 
+   can be used for fine-tuning the ChatGPT3.5 model via the OpenAI API. 
+   """
+   # copy training dataframe
+   data_json = data.copy()
+   # strip "" from beginning and end of Title column
+   data_json['Title'] = data_json['Title'].str.strip('"')
+   # create a new dictionary to store the training data
+   data_dic = {"messages": []}
+   # loop through the rows of the training dataframe
+   for index, row in data_json.iterrows():
+      # create a new dictionary for each row
+      message_1, message_2, message_3 = {}, {}, {}
+      # add the role and content for each message
+      message_1["role"] = "system"
+      message_1["content"] = """Imagine you are a member of the European
+         Parliament and based on your years of experience, you are an expert in 
+         predicting how the different party groups will vote on a given law. Given
+         the above legislative proposal, predict the percentage of votes in favour 
+         from each party group in the European Parliament. Assess the political 
+         direction, wording, framing, and topic relevance of the law to inform your 
+         predictions. Determine the type of majority (General, Left, Right, Consensus) 
+         likely to support the legislation based on party alignments."""
+      message_2["role"] = "user"
+      message_2["content"] = f'{row["Title"]}: {row["Summary text"]}'
+      message_3["role"] = "assistant"
+      message_3["content"] = f'ECR%:{row["ECR%"]}, EPP%:{row["EPP%"]}, EFD/IDG%:{row["EFD/IDG%"]}, Greens/EFA%:{row["Greens/EFA%"]}, NI%:{row["NI%"]}, REG%:{row["REG%"]}, S&D%:{row["S&D%"]}, The Left%:{row["The Left%"]}, General Majority:{row["General Majority"]}, Left Majority:{row["Left Majority"]}, Right Majority:{row["Right Majority"]}, Consensus:{row["Consensus"]}'
+      ls = [message_1, message_2, message_3]
+      data_dic["messages"].append(ls)
+   return data_dic

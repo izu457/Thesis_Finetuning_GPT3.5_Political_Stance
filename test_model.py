@@ -58,6 +58,6 @@ if __name__ == '__main__':
     # print(result)
 
     model_id = "ft:gpt-3.5-turbo-0125:lse::9mGVxk8t"
-    file_name = "data/finetuning_data/small_validation_messages.jsonl"
+    file_name = "data/finetuning_data/small_validation_data.jsonl"
     results = test(model_id, file_name)
     print(results)

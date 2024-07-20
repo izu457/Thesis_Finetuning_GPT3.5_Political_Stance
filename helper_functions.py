@@ -10,6 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import random
+import base64
 
 
 def read_xlsx(file):
@@ -377,11 +378,11 @@ def create_json(data):
       message_1["content"] = """Imagine you are a member of the European
          Parliament and based on your years of experience, you are an expert in 
          predicting how the different party groups will vote on a given law. Given
-         the above legislative proposal, predict the percentage of votes in favour 
-         from each party group in the European Parliament. Assess the political 
+         a legislative proposal, predict the percentage of votes in favour 
+         from each party group. Assess the political 
          direction, wording, framing, and topic relevance of the law to inform your 
          predictions. Determine the type of majority (General, Left, Right, Consensus) 
-         likely to support the legislation based on party alignments."""
+         likely to support the legislation based on party alignments. Reply with """
       message_2["role"] = "user"
       message_2["content"] = f'{row["Title"]}: {row["Summary text"]}'
       message_3["role"] = "assistant"
@@ -389,3 +390,31 @@ def create_json(data):
       ls = [message_1, message_2, message_3]
       data_dic["messages"].append(ls)
    return data_dic
+
+def get_ft_results(file_id):
+    """
+    Given a file_id of a finished fine-tuning job, a request is made to the OpenAI API
+    to retrieve the content of the file. Content is decoded from Base64 and saved to a 
+    csv file, which can be later loaded as a pandas DataFrame.
+    """
+    headers = {'Authorization': f'Bearer {os.environ['TestKey3']}'}
+    try:
+        response = requests.get(f"https://api.openai.com/v1/files/{file_id}/content", headers=headers)
+        response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
+        if response.content:
+            try:
+                # Decode the Base64 encoded content
+                decoded_content = base64.b64decode(response.content).decode('utf-8')
+                with open("decoded_content.csv", "w") as f:
+                    f.write(decoded_content)
+            except (ValueError, base64.binascii.Error):
+                # Handle the case where the response is not valid Base64 or cannot be decoded
+                print("Response content could not be decoded from Base64")
+                print(response.content)
+        else:
+            print("Response content is empty")
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except requests.exceptions.RequestException as err:
+        print(f"Error occurred: {err}")
+    return "decoded_content.csv"

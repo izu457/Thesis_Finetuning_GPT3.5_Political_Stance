@@ -11,6 +11,8 @@ from bs4 import BeautifulSoup
 import re
 import random
 import base64
+import json
+from itertools import islice
 
 
 def read_xlsx(file):
@@ -358,19 +360,19 @@ def split_select_data(data, training_fraction):
     print(testing.shape)
     return training, testing
 
-def create_json(data):
+def format_chat_completions(data):
    """
-   Creates a json file from training or testing data to convert it to a format that 
+   Creates a dictionary from a dataframe in the format that 
    can be used for fine-tuning the ChatGPT3.5 model via the OpenAI API. 
    """
    # copy training dataframe
-   data_json = data.copy()
+   data_df = data.copy()
    # strip "" from beginning and end of Title column
-   data_json['Title'] = data_json['Title'].str.strip('"')
+   data_df['Title'] = data_df['Title'].str.strip('"')
    # create a new dictionary to store the training data
    data_dic = {"messages": []}
    # loop through the rows of the training dataframe
-   for index, row in data_json.iterrows():
+   for index, row in data_df.iterrows():
       # create a new dictionary for each row
       message_1, message_2, message_3 = {}, {}, {}
       # add the role and content for each message
@@ -391,6 +393,19 @@ def create_json(data):
       ls = [message_1, message_2, message_3]
       data_dic["messages"].append(ls)
    return data_dic
+
+def create_jsonl(data, filename, sample=None):
+    """
+    Takes a dictionary and a filename and writes the dictionary to a .jsonl file with the
+    given filename.
+    """
+    if sample == None:
+        sample = len(data["messages"])
+    with open(filename, 'w') as json_file:
+        for line in islice(data["messages"], sample):
+            # add a key \"messages\" to each line\n",
+            json.dump({"messages": line}, json_file)
+            json_file.write('\n')
 
 def get_ft_results(file_id):
     """

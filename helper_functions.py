@@ -407,30 +407,3 @@ def create_jsonl(data, filename, sample=None):
             json.dump({"messages": line}, json_file)
             json_file.write('\n')
 
-def get_ft_results(file_id):
-    """
-    Given a file_id of a finished fine-tuning job, a request is made to the OpenAI API
-    to retrieve the content of the file. Content is decoded from Base64 and saved to a 
-    csv file, which can be later loaded as a pandas DataFrame.
-    """
-    headers = {'Authorization': f'Bearer {os.environ['TestKey3']}'}
-    try:
-        response = requests.get(f"https://api.openai.com/v1/files/{file_id}/content", headers=headers)
-        response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
-        if response.content:
-            try:
-                # Decode the Base64 encoded content
-                decoded_content = base64.b64decode(response.content).decode('utf-8')
-                with open("decoded_content.csv", "w") as f:
-                    f.write(decoded_content)
-            except (ValueError, base64.binascii.Error):
-                # Handle the case where the response is not valid Base64 or cannot be decoded
-                print("Response content could not be decoded from Base64")
-                print(response.content)
-        else:
-            print("Response content is empty")
-    except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")
-    except requests.exceptions.RequestException as err:
-        print(f"Error occurred: {err}")
-    return "decoded_content.csv"

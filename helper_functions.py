@@ -78,7 +78,7 @@ def get_majorities(df, threshold):
     and a binary value for each vote indicating if it is part of the majority.
     """
     # Create new DataFrame columns as calculations (not modifying the original df)
-    majority = (df['ECR%'] >= threshold) & (df['S&D%'] >= threshold)
+    majority = (df['EPP%'] >= threshold) & (df['S&D%'] >= threshold)
     rm = (df['ECR%'] >= threshold) & (df['EFD/IDG%'] >= threshold) & (df['EPP%'] >= threshold) & (df['Greens/EFA%'] < threshold) & (df['The Left%'] < threshold)
     lm = (df['ECR%'] < threshold) & (df['EFD/IDG%'] < threshold) & (df['S&D%'] >= threshold) & (df['Greens/EFA%'] >= threshold) & (df['The Left%'] >= threshold)
 
@@ -231,14 +231,29 @@ def fetch_summary_texts(url):
         response.raise_for_status()  # Raise an error for bad status codes
         soup = BeautifulSoup(response.text, 'html.parser')
         # type 1 of htmls
+        # same tag for text and bullet point paragraphs, including hyperlinks
         summary_elements = soup.find_all('span', lang="EN-GB")
-        # if hyperlink in summary, extract text from hyperlink
         if summary_elements:
+            # join items in list with space and remove extra spaces (each paragraph in the html has its own span tag)
             summary_text = " ".join(re.sub(r'\s+', ' ', item.text.strip()) for item in summary_elements)
             return summary_text
         # type 2 of htmls
-        summary_elements = soup.find_all('p', style="text-align: justify;")
+        # first search div as parent container to get p and li elements (text paragraphs and bullet point paragraphs) 
+        # in the correct order
+        summary_elements = []
+        parent_container = soup.find('div', class_="ep-a_text")
+        # Extract text from <p> and <li> elements in the order they appear
+        for child in parent_container.find_all(['p', 'li']):
+            # text paragraphs
+            if child.name == 'p' and child.get('style') == "text-align: justify;":
+                print(child)
+                summary_elements.append(child)
+            # bullet point paragraphs
+            elif child.name == 'li' and child.get('data-mce-style') == "color: black; text-align: justify;":
+                print(child)
+                summary_elements.append(child)
         if summary_elements:
+        # join items in list with space and remove extra spaces (each paragraph in the html has its own span tag)
             summary_text = " ".join(re.sub(r'\s+', ' ', item.text.strip()) for item in summary_elements)
             return summary_text
         return None

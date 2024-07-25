@@ -1,11 +1,12 @@
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": "Supporting majority: General, alter text to: Right majority. Proposal: Listing the third countries whose nationals must be in possession of visas when crossing the external borders and those whose nationals are exempt from that requirement (Kosovo). The proposed Regulation aims to transfer the reference to ‘Kosovo’ from Annex I (list of countries subject to the visa requirement) to Annex II (list of countries exempt from the visa requirement) of Regulation (EU) 2018/1806. As a result, holders of Kosovo biometric passports will benefit from visa-free travel for short stays (i.e. up to 90 days within a period of 180 days) in the EU. Visa liberalisation will take effect on 1 January 2024, in parallel with the launch of the European Travel Information and Authorisation System (ETIAS), which allows the digital processing of information on travellers entering the EU."}, 
+{"role": "user", "content": "Supporting majority: None, alter text to: Right majority. 
+Proposal: Listing the third countries whose nationals must be in possession of visas when crossing the external borders and those whose nationals are exempt from that requirement (Kosovo). The proposed Regulation aims to transfer the reference to ‘Kosovo’ from Annex I (list of countries subject to the visa requirement) to Annex II (list of countries exempt from the visa requirement) of Regulation (EU) 2018/1806. As a result, holders of Kosovo biometric passports will benefit from visa-free travel for short stays (i.e. up to 90 days within a period of 180 days) in the EU. Visa liberalisation will take effect on 1 January 2024, in parallel with the launch of the European Travel Information and Authorisation System (ETIAS), which allows the digital processing of information on travellers entering the EU."}, 
 {"role": "assistant", "content": "A right majority would reject the proposal"}]}
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": "Supporting majority: none, alter text to: left majority. 
+{"role": "user", "content": "Supporting majority: General/Right, alter text to: left majority. 
 Proposal: Visa Information System. Extended scope of the Visa Information System (VIS)
 The Visa Information System (VIS) is a European database used by authorities to monitor third-country nationals requiring a visa to travel to the Schengen area.
 The reform of the VIS should enable the system to better respond to security developments and migration challenges, and to optimise the management of the EU's external borders by extending its scope to long-stay visas and residence permits in order to address gaps in security information.
@@ -44,7 +45,7 @@ corresponding changes throughout.)"}
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: none, alter text to: left majority. 
+{"role": "user", "content": ""Supporting majority: General, alter text to: left majority. 
  Proposal: Visa Code.
 Updating the rules on short-stay visas
 The Regulation establishes the procedures and conditions for issuing visas for intended stays on the territory of the Member States not exceeding 90 days in any 180-day period. When applying the Regulation, Member States shall act in full compliance with Union law, including the Charter of Fundamental Rights of the European Union. Decisions on applications under the Regulation shall be taken on an individual basis.
@@ -81,7 +82,7 @@ Inhuman or Degrading Treatment or Punishment, the Convention on the Rights of th
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: none, alter text to: left majority. 
+{"role": "user", "content": ""Supporting majority: General, alter text to: left majority. 
  Proposal: Visa Code.
 Updating the rules on short-stay visas
 The Regulation establishes the procedures and conditions for issuing visas for intended stays on the territory of the Member States not exceeding 90 days in any 180-day period. When applying the Regulation, Member States shall act in full compliance with Union law, including the Charter of Fundamental Rights of the European Union. Decisions on applications under the Regulation shall be taken on an individual basis.
@@ -112,7 +113,7 @@ objective criteria, be applied to enhance a given third country's  cooperation o
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: General, alter text to: right majority.
  Proposal: Third countries whose nationals are subject to or exempt from a visa requirement: Ukraine. This proposal seeks to amend Regulation (EC) No 539/2001 in order to allow Ukrainian nationals to be exempt from the requirement to hold a visa when travelling in EU Member States.
 A recital stated that Ukraine has met all the benchmarks set out in the Visa Liberalisation Action Plan presented to the Ukrainian Government in November 2010, and therefore fulfils the relevant criteria for its citizens to be exempted from the visa requirement when travelling to the territory of Member States.
 It is also stated that the continuous fulfilment by Ukraine of such criteria, especially on the fight against organised crime and corruption, will be duly monitored by the Commission.
@@ -122,7 +123,7 @@ It is also stated that the continuous fulfilment by Ukraine of such criteria, es
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: Left, alter text to: right majority.
  Proposal: Asylum and Migration Fund.
 PURPOSE: to establish the asylum and migration fund for the period 2021-2027.
 PROPOSED ACT: Regulation of the European Parliament and of the Council.
@@ -152,7 +153,7 @@ It should be noted that the Commission proposal concerning the multiannual finan
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: Left, alter text to: right majority.
  Proposal: Asylum and Migration Fund.
 PURPOSE: to establish the asylum and migration fund for the period 2021-2027.
 PROPOSED ACT: Regulation of the European Parliament and of the Council.
@@ -188,7 +189,7 @@ A right majority would further propose to delete the part 'development of mobili
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: Left, alter text to: right majority.
  Proposal: 
  Proposal: Asylum and Migration Fund.
 PURPOSE: to establish the asylum and migration fund for the period 2021-2027.
@@ -221,7 +222,7 @@ A Right majority would further propose to Change the part 'actions aimed at enha
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: Left, alter text to: right majority.
  Proposal: 
  Proposal: Asylum and Migration Fund.
 PURPOSE: to establish the asylum and migration fund for the period 2021-2027.
@@ -255,7 +256,7 @@ A Right majority would also propose to delete the part ''humanitarian admission'
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: General, alter text to: right majority.
  Proposal: European Border Surveillance System (EUROSUR)
 PURPOSE: to establish a European Border Surveillance System (EUROSUR) with the aim of increasing coordination within and between Member States to prevent and tackle serious crime.
 PROPOSED ACT: Regulation of the European Parliament and of the Council.
@@ -302,7 +303,7 @@ The impact assessment provides a financial envelope of EUR 338.7 million from 20
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: General/Left, alter text to: right majority.
  Proposal: Freedom of Movement for Workers
 PURPOSE: to ensure the better application of EU legislation on people’s right to work in another Member State than their own and thus to make it easier for people to exercise their rights in practice.
 PROPOSED ACT: Directive of the European Parliament and of the Council.
@@ -342,7 +343,7 @@ A Right majority would further propose to add: 'The easy access to social benefi
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: General/Left, alter text to: right majority.
  Proposal: Freedom of Movement for Workers
 PURPOSE: to ensure the better application of EU legislation on people’s right to work in another Member State than their own and thus to make it easier for people to exercise their rights in practice.
 PROPOSED ACT: Directive of the European Parliament and of the Council.
@@ -386,7 +387,7 @@ to 'Family members of Union citizens have the right to move and stay in another 
 
 {"messages": [
 {"role": "system", "content": "Imagine you are an experienced policymaker in the European Parliament. When provided with a legislative proposal supported by either a left- or right-leaning, a general or no majority, your task is to modify the text to potentially gain support from counterfactual majority. Return the revised full text of the proposal with changes highlighted. If the opposing majority would fundamentally reject the proposal based on its topic or core principles, respond with: "A [left/right] majority would reject the proposal.""}, 
-{"role": "user", "content": ""Supporting majority: ?, alter text to: right majority.
+{"role": "user", "content": ""Supporting majority: General/Left, alter text to: right majority.
  Proposal: European network of Employment Services, workers' access to mobility services and the further integration of labour markets
 PURPOSE: to reinforce the EURES network with the aim of enhancing access of workers to intra-EU labour mobility support services, thus supporting fair mobility and increasing access to employment opportunities throughout the Union.
 PROPOSED ACT: Regulation of the European Parliament and of the Council.

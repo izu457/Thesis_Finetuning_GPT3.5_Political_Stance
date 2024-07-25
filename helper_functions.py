@@ -231,8 +231,15 @@ def fetch_summary_texts(url):
         response.raise_for_status()  # Raise an error for bad status codes
         soup = BeautifulSoup(response.text, 'html.parser')
         # type 1 of htmls
-        # same tag for text and bullet point paragraphs, including hyperlinks
-        summary_elements = soup.find_all('span', lang="EN-GB")
+        # same tag for text and bullet point paragraphs, but different lang attributes
+        summary_elements = []
+        parent_container = soup.find('div', class_="ep-a_text")
+        for child in parent_container.find_all('span'):
+            if child.name == 'span' and child.get('lang') == "EN-GB":
+                summary_elements.append(child)
+            elif child.name == 'span' and child.get('lang') == "EN-US":
+                summary_elements.append(child)
+        #summary_elements = soup.find_all('span', lang="EN-GB")
         if summary_elements:
             # join items in list with space and remove extra spaces (each paragraph in the html has its own span tag)
             summary_text = " ".join(re.sub(r'\s+', ' ', item.text.strip()) for item in summary_elements)
@@ -246,11 +253,9 @@ def fetch_summary_texts(url):
         for child in parent_container.find_all(['p', 'li']):
             # text paragraphs
             if child.name == 'p' and child.get('style') == "text-align: justify;":
-                print(child)
                 summary_elements.append(child)
             # bullet point paragraphs
             elif child.name == 'li' and child.get('data-mce-style') == "color: black; text-align: justify;":
-                print(child)
                 summary_elements.append(child)
         if summary_elements:
         # join items in list with space and remove extra spaces (each paragraph in the html has its own span tag)

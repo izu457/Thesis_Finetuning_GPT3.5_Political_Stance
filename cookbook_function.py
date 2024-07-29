@@ -13,6 +13,9 @@ import itertools
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 def check_format(dataset):
+    if dataset is None:
+        print("Dataset is empty")
+        return
     # Format error checks
     format_errors = defaultdict(int)
     for ex in dataset:
@@ -157,3 +160,4 @@ def get_checkpoint_results(job_id):
     except requests.exceptions.RequestException as err:
         logger.error(f"Error occurred: {err}")
     return decoded_content_df
+

@@ -109,70 +109,6 @@ def fix_base64_padding(base64_str):
         base64_str += '=' * (4 - missing_padding)
     return base64_str
 
-def get_ft_results(file_id):
-    """
-    Given a result_files id of a finished fine-tuning job, a request is made to the OpenAI API
-    to retrieve the content of the file. Content is decoded from Base64 and saved to a 
-    csv file, which can be later loaded as a pandas DataFrame.
-    """
-    headers = {'Authorization': f'Bearer sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz'}
-    try:
-        response = requests.get(f"https://api.openai.com/v1/files/{file_id}/content", headers=headers)
-        response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
-        logger.info("Received response for file content.")
-        if response.content:
-            try:
-                # Parse the JSON content
-                decoded_content = base64.b64decode(response.content).decode('utf-8')
-                decoded_content = fix_base64_padding(decoded_content)
-                logger.info("Parsed JSON content successfully.")
-                with open("decoded_content.csv", "w") as f:
-                    f.write(decoded_content)
-                logger.info("File 'decoded_content.csv' written successfully.")
-            except (ValueError, base64.binascii.Error) as e:
-                # Handle the case where the response is not valid JSON
-                logger.error("Response content could not be parsed as JSON")
-                logger.error(f"Exception: {e}")
-                logger.error(response.content)
-        else:
-            logger.error("Response content is empty")
-    except requests.exceptions.HTTPError as http_err:
-        logger.error(f"HTTP error occurred: {http_err}")
-    except requests.exceptions.RequestException as err:
-        logger.error(f"Error occurred: {err}")
-    return "decoded_content.csv"
-
-def get_checkpoint_results(job_id):
-    """
-    Given a job_id of a finished fine-tuning job, a request is made to the OpenAI API
-    to retrieve the checkpoints which have been saved during the fine-tuning process. 
-    Content is decoded from Base64 and saved to a csv file, which can be later loaded 
-    as a pandas DataFrame.
-    """
-    headers = {'Authorization': f'Bearer sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz'}
-    try:
-        response = requests.get(f"https://api.openai.com/v1/fine_tuning/jobs/{job_id}/checkpoints", headers=headers)
-        response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
-        if response.content:
-            try:
-                # Decode the json encoded content
-                decoded_content = response.content.decode('utf-8')
-                logger.info("Decoded response content successfully.")
-                # Normalize the Json content to a df
-                decoded_content_df = json.dumps(json.loads(decoded_content), indent=4)
-            except (ValueError, json.JSONDecodeError) as e:
-                # Handle the case where the response is not valid JSON
-                logger.error("Response content could not be parsed as JSON")
-                logger.error(f"Exception: {e}")
-                logger.error(f"Content: {response.content}")
-        else:
-            logger.error("Response content is empty")
-    except requests.exceptions.HTTPError as http_err:
-        logger.error(f"HTTP error occurred: {http_err}")
-    except requests.exceptions.RequestException as err:
-        logger.error(f"Error occurred: {err}")
-    return decoded_content_df
-
 def validate_jsonl(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         for line_number, line in enumerate(file, start=1):
@@ -252,12 +188,18 @@ def monitor_jobs(job_id, limit=10):
     returns a list of up to limit (default limit is 10) saved events 
     of the fine-tuning job.
     """
+    ft_events = []
     event_ls = [client.fine_tuning.jobs.list_events(
             fine_tuning_job_id=job_id,
             limit=limit
                 )
             ]
-    return event_ls
+    for event in event_ls:
+        #print(event)
+        for ft_event in event:
+            #print(ft_event)
+            ft_events.append(ft_event.id)
+    return ft_events
 
 def extract_job_info(all_job_ids):
     """
@@ -272,16 +214,78 @@ def extract_job_info(all_job_ids):
         # Access OpenAI API to retreive job information
         job_results = client.fine_tuning.jobs.retrieve(job_id)
         results.append({
-            "job_id": job_results.job_id,
+            "job_id": job_results.id,
             "learning_rate_multiplier": job_results.hyperparameters.learning_rate_multiplier,
             "n_epochs": job_results.hyperparameters.n_epochs,
             "batch_size": job_results.hyperparameters.batch_size,
             "status": job_results.status,
-            "events": monitor_jobs(job_id),
+            "event_ids": monitor_jobs(job_id),
             "result_file_name": job_results.result_files
         })
     # convert results to a pandas DataFrame
     results_df = pd.DataFrame(results)
     return results_df
 
+def get_ft_results(result_file_id):
+    """
+    Given a result files id of a finished fine-tuning job, a request is made to the OpenAI API
+    to retrieve the content of the file. Content is decoded from Base64 and saved to a 
+    csv file, which can be later loaded as a pandas DataFrame.
+    """
+    headers = {'Authorization: Bearer sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz'}
+    try:
+        response = requests.get(f"https://api.openai.com/v1/files/{result_file_id}/content", headers=headers)
+        response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
+        logger.info("Received response for file content.")
+        if response.content:
+            try:
+                # Parse the JSON content
+                decoded_content = base64.b64decode(response.content).decode('utf-8')
+                decoded_content = fix_base64_padding(decoded_content)
+                logger.info("Parsed JSON content successfully.")
+                with open("decoded_content.csv", "w") as f:
+                    f.write(decoded_content)
+                logger.info("File 'decoded_content.csv' written successfully.")
+            except (ValueError, base64.binascii.Error) as e:
+                # Handle the case where the response is not valid JSON
+                logger.error("Response content could not be parsed as JSON")
+                logger.error(f"Exception: {e}")
+                logger.error(response.content)
+        else:
+            logger.error("Response content is empty")
+    except requests.exceptions.HTTPError as http_err:
+        logger.error(f"HTTP error occurred: {http_err}")
+    except requests.exceptions.RequestException as err:
+        logger.error(f"Error occurred: {err}")
+    return "decoded_content.csv"
 
+def get_checkpoint_results(job_id):
+    """
+    Given a job_id of a finished fine-tuning job, a request is made to the OpenAI API
+    to retrieve the checkpoints which have been saved during the fine-tuning process. 
+    Content is decoded from Base64 and saved to a csv file, which can be later loaded 
+    as a pandas DataFrame.
+    """
+    headers = {'Authorization': f'Bearer sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz'}
+    try:
+        response = requests.get(f"https://api.openai.com/v1/fine_tuning/jobs/{job_id}/checkpoints", headers=headers)
+        response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
+        if response.content:
+            try:
+                # Decode the json encoded content
+                decoded_content = response.content.decode('utf-8')
+                logger.info("Decoded response content successfully.")
+                # Normalize the Json content to a df
+                decoded_content_df = json.dumps(json.loads(decoded_content), indent=4)
+            except (ValueError, json.JSONDecodeError) as e:
+                # Handle the case where the response is not valid JSON
+                logger.error("Response content could not be parsed as JSON")
+                logger.error(f"Exception: {e}")
+                logger.error(f"Content: {response.content}")
+        else:
+            logger.error("Response content is empty")
+    except requests.exceptions.HTTPError as http_err:
+        logger.error(f"HTTP error occurred: {http_err}")
+    except requests.exceptions.RequestException as err:
+        logger.error(f"Error occurred: {err}")
+    return decoded_content_df

@@ -1,16 +1,27 @@
 import json
 import os
 import numpy as np
+import time
 import tiktoken
 from collections import defaultdict
 import openai
 import pandas as pd
-import matplotlib.pyplot as plt
 import requests
 import base64
+import random
 import logging
 import itertools
-from tenacity import retry, stop_after_attempt, wait_random_exponential
+
+# Set up logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Authenticate
+os.environ['TestKey3'] = 'sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz' 
+client = openai.OpenAI(api_key=os.environ['TestKey3'])
+headers = {
+    "Authorization": f"Bearer {os.environ['TestKey3']}"
+}
 
 def check_format(dataset):
     if dataset is None:
@@ -86,12 +97,13 @@ def print_distribution(values, name):
     print(f"mean / median: {np.mean(values)}, {np.median(values)}")
     print(f"p5 / p95: {np.quantile(values, 0.1)}, {np.quantile(values, 0.9)}")
 
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 def fix_base64_padding(base64_str):
-    """Fix the padding of a Base64 encoded string."""
+    """
+    For strings that cannot be decoded from Base64 without
+    a padding problem.
+    Fixes the padding of a Base64 encoded string, returns the
+    fixed string.
+    """
     missing_padding = len(base64_str) % 4
     if missing_padding:
         base64_str += '=' * (4 - missing_padding)
@@ -160,4 +172,116 @@ def get_checkpoint_results(job_id):
     except requests.exceptions.RequestException as err:
         logger.error(f"Error occurred: {err}")
     return decoded_content_df
+
+def validate_jsonl(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for line_number, line in enumerate(file, start=1):
+            try:
+                json.loads(line)
+            except json.JSONDecodeError as e:
+                print(f"Error on line {line_number}: {e}")
+        print("Valid jsonl file")
+
+def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, rate_limit, max_retries=5):
+    """
+    Takes as input lists of hyperparameters and generates all possible combinations
+    to loop through and try as hyperparameters for a fine-tuning job.
+    Takes as input the file id of the training file and the rate limit given in 
+    possible requests per minute. 
+    If rate limit is exceeded, maximum retries default to 5. 
+    Processes each combination by creating a fine-tuning job with the specified 
+    hyperparameters. Respects the rate limit by waiting between requests. 
+    Returns a list of job ids of the finished jobs.
+    """
+    # Generate all combinations of hyperparameters
+    combinations = list(itertools.product(lr_multiplier, n_epochs, batch_size))
+    logger.info(len(combinations), "hyperparameter combinations in total")
+    logger.info(combinations)
+    # Rate limit settings
+    # code snippets from https://github.com/openai/openai-cookbook/blob/main/examples/How_to_handle_rate_limits.ipynb
+    request_interval = 60 / rate_limit  # Interval in seconds
+    logger.info(f"Standard request interval is set to {request_interval} seconds.")
+    last_request_time = time.time() - request_interval  # Initialize to allow immediate first request
+    # Loop through each combination of hyperparameters while using batches
+    all_job_ids = []
+    for lr_multiplier, epoch, batch in combinations:
+        # Retry loop to handle rate limiting
+        for attempt in range(max_retries):
+            # Setting time to wait between requests
+            logger.info(f"Processing hyperparameters (lr={lr_multiplier}, epoch={epoch}, batch={batch})")
+            current_time = time.time()
+            elapsed_time = current_time - last_request_time
+            # if time that the processing took is less than the request interval, 
+            # add the difference in time as sleep_time    
+            if elapsed_time < request_interval:
+                sleep_time = request_interval - elapsed_time 
+                logger.info(f"Rate limiting: Sleeping for {sleep_time:.2f} seconds")
+                time.sleep(sleep_time)
+            try:
+                # save response of ft-job after creating it with as much metadata as possible
+                response = client.fine_tuning.jobs.create(
+                    training_file=train_upload.id,  # file id returned after upload to API
+                    model="gpt-3.5-turbo",
+                    suffix="mig_gen",
+                    seed=124,
+                    hyperparameters={
+                        "n_epochs": epoch,
+                        "batch_size": batch,
+                        "learning_rate_multiplier": lr_multiplier
+                    }
+                )
+                job_id = response.id
+                all_job_ids.append(job_id)
+                logger.info(f"Job created with ID {job_id}")
+                last_request_time = time.time()
+                break  # Break out of the retry loop if the request is successful
+            except Exception as e:
+                if "429" in str(e):  # Check if the error is a rate limiting error
+                    wait_time = (2 ** attempt) + random.uniform(0, 1)
+                    logger.error(f"Rate limit exceeded. Retrying in {wait_time:.2f} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    print(f"An error occurred: {e}")
+                    break
+    logger.info("All batches processed.")
+    return response
+
+def monitor_jobs(job_id, limit=10):
+    """
+    Takes as input a single job id of a finished fine tuning job and 
+    returns a list of up to limit (default limit is 10) saved events 
+    of the fine-tuning job.
+    """
+    event_ls = [client.fine_tuning.jobs.list_events(
+            fine_tuning_job_id=job_id,
+            limit=limit
+                )
+            ]
+    return event_ls
+
+def extract_job_info(all_job_ids):
+    """
+    Takes as input a list of job ids from created fine-tuning jobs.
+    Creates a list of dictionaries with information about each finished 
+    fine-tuning job, including hyperparameters, events, and the result file
+    name.
+    Converts the list of dictionaries to a dataframe and returns the dataframe.
+    """
+    results = []
+    for job_id in all_job_ids:
+        # Access OpenAI API to retreive job information
+        job_results = client.fine_tuning.jobs.retrieve(job_id)
+        results.append({
+            "job_id": job_results.job_id,
+            "learning_rate_multiplier": job_results.hyperparameters.learning_rate_multiplier,
+            "n_epochs": job_results.hyperparameters.n_epochs,
+            "batch_size": job_results.hyperparameters.batch_size,
+            "status": job_results.status,
+            "events": monitor_jobs(job_id),
+            "result_file_name": job_results.result_files
+        })
+    # convert results to a pandas DataFrame
+    results_df = pd.DataFrame(results)
+    return results_df
+
 

@@ -118,13 +118,13 @@ def validate_jsonl(file_path):
                 print(f"Error on line {line_number}: {e}")
         print("Valid jsonl file")
 
-def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, rate_limit, max_retries=5):
+def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, rate_limit, max_retries=3):
     """
     Takes as input lists of hyperparameters and generates all possible combinations
     to loop through and try as hyperparameters for a fine-tuning job.
     Takes as input the file id of the training file and the rate limit given in 
     possible requests per minute. 
-    If rate limit is exceeded, maximum retries default to 5. 
+    If rate limit is exceeded, maximum retries default to 3. 
     Processes each combination by creating a fine-tuning job with the specified 
     hyperparameters. Respects the rate limit by waiting between requests. 
     Returns a list of job ids of the finished jobs.
@@ -180,7 +180,7 @@ def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, rate_limit, 
                     print(f"An error occurred: {e}")
                     break
     logger.info("All batches processed.")
-    return response
+    return all_job_ids
 
 def monitor_jobs(job_id, limit=10):
     """
@@ -226,15 +226,17 @@ def extract_job_info(all_job_ids):
     results_df = pd.DataFrame(results)
     return results_df
 
-def get_ft_results(result_file_id):
+def get_ft_results(file_id):
     """
     Given a result files id of a finished fine-tuning job, a request is made to the OpenAI API
     to retrieve the content of the file. Content is decoded from Base64 and saved to a 
     csv file, which can be later loaded as a pandas DataFrame.
     """
-    headers = {'Authorization: Bearer sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz'}
+    headers = {'Authorization': 'Bearer sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz'}
     try:
-        response = requests.get(f"https://api.openai.com/v1/files/{result_file_id}/content", headers=headers)
+        response = requests.get(f"https://api.openai.com/v1/files/{file_id}/content", headers=headers)
+        # print the url of the request
+        #print(response.url)
         response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
         logger.info("Received response for file content.")
         if response.content:
@@ -284,8 +286,8 @@ def get_checkpoint_results(job_id):
                 logger.error(f"Content: {response.content}")
         else:
             logger.error("Response content is empty")
-    except requests.exceptions.HTTPError as http_err:
-        logger.error(f"HTTP error occurred: {http_err}")
+    #except requests.exceptions.HTTPError as http_err:
+    #    logger.error(f"HTTP error occurred: {http_err}")
     except requests.exceptions.RequestException as err:
         logger.error(f"Error occurred: {err}")
     return decoded_content_df

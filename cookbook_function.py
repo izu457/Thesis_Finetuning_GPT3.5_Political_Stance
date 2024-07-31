@@ -118,7 +118,7 @@ def validate_jsonl(file_path):
                 print(f"Error on line {line_number}: {e}")
         print("Valid jsonl file")
 
-def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, rate_limit, max_retries=3):
+def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, val_upload, rate_limit, max_retries=3):
     """
     Takes as input lists of hyperparameters and generates all possible combinations
     to loop through and try as hyperparameters for a fine-tuning job.
@@ -157,6 +157,7 @@ def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, rate_limit, 
                 # save response of ft-job after creating it with as much metadata as possible
                 response = client.fine_tuning.jobs.create(
                     training_file=train_upload.id,  # file id returned after upload to API
+                    validation_file=val_upload.id, # file id returned after upload to API
                     model="gpt-3.5-turbo",
                     suffix="mig_gen",
                     seed=124,
@@ -236,7 +237,7 @@ def get_ft_results(file_id):
     try:
         response = requests.get(f"https://api.openai.com/v1/files/{file_id}/content", headers=headers)
         # print the url of the request
-        #print(response.url)
+        print(response.url)
         response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
         logger.info("Received response for file content.")
         if response.content:
@@ -265,8 +266,7 @@ def get_checkpoint_results(job_id):
     """
     Given a job_id of a finished fine-tuning job, a request is made to the OpenAI API
     to retrieve the checkpoints which have been saved during the fine-tuning process. 
-    Content is decoded from Base64 and saved to a csv file, which can be later loaded 
-    as a pandas DataFrame.
+    Content is decoded from Base64 and saved to a string.
     """
     headers = {'Authorization': f'Bearer sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz'}
     try:
@@ -277,8 +277,8 @@ def get_checkpoint_results(job_id):
                 # Decode the json encoded content
                 decoded_content = response.content.decode('utf-8')
                 logger.info("Decoded response content successfully.")
-                # Normalize the Json content to a df
-                decoded_content_df = json.dumps(json.loads(decoded_content), indent=4)
+                # Normalize the Json content to a string
+                decoded_content = json.dumps(json.loads(decoded_content), indent=4)
             except (ValueError, json.JSONDecodeError) as e:
                 # Handle the case where the response is not valid JSON
                 logger.error("Response content could not be parsed as JSON")
@@ -290,4 +290,4 @@ def get_checkpoint_results(job_id):
     #    logger.error(f"HTTP error occurred: {http_err}")
     except requests.exceptions.RequestException as err:
         logger.error(f"Error occurred: {err}")
-    return decoded_content_df
+    return decoded_content

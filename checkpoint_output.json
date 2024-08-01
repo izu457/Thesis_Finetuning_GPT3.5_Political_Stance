@@ -1,53 +1,7 @@
 {
   "object": "list",
-  "data": [
-    {
-      "object": "fine_tuning.job.checkpoint",
-      "id": "ftckpt_utSB56X91lhF3vutvrwPj1r3",
-      "created_at": 1721253475,
-      "fine_tuned_model_checkpoint": "ft:gpt-3.5-turbo-0125:lse:small:9m6wqQAA",
-      "fine_tuning_job_id": "ftjob-yopylfrAJb6XAXOXWCQOMIzO",
-      "metrics": {
-        "step": 30,
-        "train_loss": 2.3800549507141113,
-        "train_mean_token_accuracy": 0.6436781883239746,
-        "valid_loss": 2.504911302149981,
-        "valid_mean_token_accuracy": 0.632183908045977
-      },
-      "step_number": 30
-    },
-    {
-      "object": "fine_tuning.job.checkpoint",
-      "id": "ftckpt_vGyBFqtZZgO1ucAAgVZGaVfb",
-      "created_at": 1721253439,
-      "fine_tuned_model_checkpoint": "ft:gpt-3.5-turbo-0125:lse:small:9m6wqzz9:ckpt-step-20",
-      "fine_tuning_job_id": "ftjob-yopylfrAJb6XAXOXWCQOMIzO",
-      "metrics": {
-        "step": 20,
-        "train_loss": 2.503605365753174,
-        "train_mean_token_accuracy": 0.6436781883239746,
-        "valid_loss": 2.5244821022296775,
-        "valid_mean_token_accuracy": 0.632183908045977
-      },
-      "step_number": 20
-    },
-    {
-      "object": "fine_tuning.job.checkpoint",
-      "id": "ftckpt_G7V0aYEMy50Hnv8eWxxpccST",
-      "created_at": 1721253404,
-      "fine_tuned_model_checkpoint": "ft:gpt-3.5-turbo-0125:lse:small:9m6wpj62:ckpt-step-10",
-      "fine_tuning_job_id": "ftjob-yopylfrAJb6XAXOXWCQOMIzO",
-      "metrics": {
-        "step": 10,
-        "train_loss": 2.403564691543579,
-        "train_mean_token_accuracy": 0.6666666865348816,
-        "valid_loss": 2.552517660732927,
-        "valid_mean_token_accuracy": 0.632183908045977
-      },
-      "step_number": 10
-    }
-  ],
+  "data": [],
   "has_more": false,
-  "first_id": "ftckpt_utSB56X91lhF3vutvrwPj1r3",
-  "last_id": "ftckpt_G7V0aYEMy50Hnv8eWxxpccST"
+  "first_id": null,
+  "last_id": null
 }

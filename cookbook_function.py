@@ -118,7 +118,7 @@ def validate_jsonl(file_path):
                 print(f"Error on line {line_number}: {e}")
         print("Valid jsonl file")
 
-def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, val_upload, rate_limit, max_retries=3):
+def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, val_upload, rate_limit, max_retries=3, model="gpt-3.5-turbo"):
     """
     Takes as input lists of hyperparameters and generates all possible combinations
     to loop through and try as hyperparameters for a fine-tuning job.
@@ -158,7 +158,7 @@ def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, val_upload, 
                 response = client.fine_tuning.jobs.create(
                     training_file=train_upload.id,  # file id returned after upload to API
                     validation_file=val_upload.id, # file id returned after upload to API
-                    model="gpt-3.5-turbo",
+                    model=model,
                     suffix="mig_gen",
                     seed=124,
                     hyperparameters={
@@ -227,6 +227,41 @@ def extract_job_info(all_job_ids):
     results_df = pd.DataFrame(results)
     return results_df
 
+# def get_ft_results(file_id):
+#     """
+#     Given a result files id of a finished fine-tuning job, a request is made to the OpenAI API
+#     to retrieve the content of the file. Content is decoded from Base64 and saved to a 
+#     csv file, which can be later loaded as a pandas DataFrame.
+#     """
+#     headers = {'Authorization': 'Bearer sk-proj-GL73kbRwhRpgN3EmXz1YT3BlbkFJEMJhTsinxQDel42BZdNz'}
+#     try:
+#         response = requests.get(f"https://api.openai.com/v1/files/{file_id}/content", headers=headers)
+#         # print the url of the request
+#         print(response.url)
+#         response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
+#         logger.info("Received response for file content.")
+#         if response.content:
+#             try:
+#                 # Parse the JSON content
+#                 decoded_content = base64.b64decode(response.content).decode('utf-8')
+#                 decoded_content = fix_base64_padding(decoded_content)
+#                 logger.info("Parsed JSON content successfully.")
+#                 with open("decoded_content.csv", "w") as f:
+#                     f.write(decoded_content)
+#                 logger.info("File 'decoded_content.csv' written successfully.")
+#             except (ValueError, base64.binascii.Error) as e:
+#                 # Handle the case where the response is not valid JSON
+#                 logger.error("Response content could not be parsed as JSON")
+#                 logger.error(f"Exception: {e}")
+#                 logger.error(response.content)
+#         else:
+#             logger.error("Response content is empty")
+#     except requests.exceptions.HTTPError as http_err:
+#         logger.error(f"HTTP error occurred: {http_err}")
+#     except requests.exceptions.RequestException as err:
+#         logger.error(f"Error occurred: {err}")
+#     return "decoded_content.csv"
+
 def get_ft_results(file_id):
     """
     Given a result files id of a finished fine-tuning job, a request is made to the OpenAI API
@@ -246,9 +281,6 @@ def get_ft_results(file_id):
                 decoded_content = base64.b64decode(response.content).decode('utf-8')
                 decoded_content = fix_base64_padding(decoded_content)
                 logger.info("Parsed JSON content successfully.")
-                with open("decoded_content.csv", "w") as f:
-                    f.write(decoded_content)
-                logger.info("File 'decoded_content.csv' written successfully.")
             except (ValueError, base64.binascii.Error) as e:
                 # Handle the case where the response is not valid JSON
                 logger.error("Response content could not be parsed as JSON")
@@ -260,7 +292,7 @@ def get_ft_results(file_id):
         logger.error(f"HTTP error occurred: {http_err}")
     except requests.exceptions.RequestException as err:
         logger.error(f"Error occurred: {err}")
-    return "decoded_content.csv"
+    return decoded_content
 
 def get_checkpoint_results(job_id):
     """

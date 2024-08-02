@@ -312,13 +312,15 @@ def get_random_guess(data):
 
 def get_accuracy_df (original_df, test_df, tolerance_interval):
     """"
-    Function to calculate the accuracy of a test dataframe compared to an original dataframe.
-    Takes as arguments the original dataframe and the test dataframe and a tolerance interval.
-    For each index in the original data frame, it finds the corresponding index in the test data frame
-    and checks if the values in the test data frame are within the tolerance interval of the original 
-    data frame.
-    Calculates accuracy as the number of correct guesses divided by the number of guesses.
-    Returns the accuracy.
+    Function to calculate the accuracy of a test dataframe compared to 
+    an original dataframe.
+    Takes as arguments the original dataframe and the test dataframe and
+    a tolerance interval.
+    For each index in the original data frame, it finds the corresponding 
+    index in the test data frame and checks if the values in the test data
+    frame are within the tolerance interval of the original data frame.
+    Calculates accuracy as the number of correct guesses divided by the 
+    number of guesses. Returns the accuracy.
     """
     # try to set index of test dataframe to Vote ID if not already done
     try:
@@ -330,21 +332,30 @@ def get_accuracy_df (original_df, test_df, tolerance_interval):
     # add a column for each column in the original dataframe
     for column in test_df.columns:
         accuracy_df[column] = 0
+        #display(accuracy_df)
     # loop through the rows of the test dataframe
     for index in test_df.index:
         # loop through the columns of the test dataframe
         for column in test_df.columns:
             # Debugging: Print the types and values
-            #print(f"Index: {index}, Column: {column}")
-            #print(f"Original DF Value: {original_df.loc[index, column]}, Type: {type(original_df.loc[index, column])}")
-            #print(f"Test DF Value: {test_df.loc[index, column]}, Type: {type(test_df.loc[index, column])}")
-            
+            # print(f"Index: {index}, Column: {column}")
+            # print(f"Original DF Value: {original_df.loc[index, column]}, Type: {type(original_df.loc[index, column])}")
+            # print(f"Test DF Value: {test_df.loc[index, column]}, Type: {type(test_df.loc[index, column])}")
+            # Check if test value is NaN, skip if true
+            test_value = test_df.loc[index, column]
+            original_value = original_df.loc[index, column]
+            if pd.isna(test_value):
+                continue
             # check if the value in the test dataframe is within the tolerance interval of the original dataframe
-            if ((original_df.loc[index, column] - tolerance_interval) <= test_df.loc[index, column]) & (test_df.loc[index, column] <= (original_df.loc[index, column] + tolerance_interval)):                # if it is, add 1 to the corresponding cell in the accuracy dataframe
+            lower_bound = original_value - tolerance_interval
+            upper_bound = original_value + tolerance_interval
+            if lower_bound <= test_value <= upper_bound:
+                # if it is, add 1 to the corresponding cell in the accuracy dataframe
                 accuracy_df.loc[index, column] = 1
     # calculate the accuracy as the sum of the accuracy dataframe divided by the number of cells
     accuracy = accuracy_df.sum().sum() / (accuracy_df.shape[0] * accuracy_df.shape[1])
     return round(accuracy, 4), accuracy_df
+
 
 def process_session(voted_docs, party_names, majority_names):
     """
@@ -429,3 +440,24 @@ def create_jsonl(data, filename, sample=None):
             json.dump({"messages": line}, json_file)
             json_file.write('\n')
 
+def parse_string_ls_to_dict(s):
+    """
+    Takes as input a string of model reponses, splits each response into
+    key value pairs of party names and values, and turns them into a 
+    dictionary.
+    Returns the dictionary.
+    """
+    result = {}
+    # delete all ' from string
+    s = s.replace("'", "")
+    # split key value paris from each other
+    for item in s.split(', '):
+        # split party names from values
+        parts = item.split(':')
+        if len(parts) == 2:
+            # turn key value pairs into dictionary
+            key, value = parts
+            result[key] = value
+        #else:
+            #print(f"Skipping incorrectly formatted item: {item}")
+    return result

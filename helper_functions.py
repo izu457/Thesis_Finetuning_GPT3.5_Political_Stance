@@ -404,11 +404,13 @@ def format_chat_completions(data):
          from each party group. Assess the political 
          direction, wording, framing, and topic relevance of the law to inform your 
          predictions. Determine the type of majority (General, Left, Right, Consensus) 
-         likely to support the legislation based on party alignments. Reply with numerical
-         values only."""
+         likely to support the legislation based on party alignments. Don't justify, just
+         give your predictions."""
       message_2["role"] = "user"
-      message_2["content"] = f'{row["Title"]}: {row["Summary text"]}'
+      # index is the Vote ID
+      message_2["content"] = f'Vote ID: {index}, {row["Title"]}: {row["Summary text"]}'
       message_3["role"] = "assistant"
+      # index is the Vote ID
       message_3["content"] = f'Vote ID: {index}, ECR%:{row["ECR%"]}, EPP%:{row["EPP%"]}, EFD/IDG%:{row["EFD/IDG%"]}, Greens/EFA%:{row["Greens/EFA%"]}, NI%:{row["NI%"]}, REG%:{row["REG%"]}, S&D%:{row["S&D%"]}, The Left%:{row["The Left%"]}, General Majority:{row["General Majority"]}, Left Majority:{row["Left Majority"]}, Right Majority:{row["Right Majority"]}, Consensus:{row["Consensus"]}'
       ls = [message_1, message_2, message_3]
       data_dic["messages"].append(ls)

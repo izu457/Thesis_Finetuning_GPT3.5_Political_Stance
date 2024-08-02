@@ -322,30 +322,38 @@ def get_accuracy_df (original_df, test_df, tolerance_interval):
     Calculates accuracy as the number of correct guesses divided by the 
     number of guesses. Returns the accuracy.
     """
+    # drop lines where there are only NAs
+    original_df = original_df.dropna(how='all')
+    test_df = test_df.dropna(how='all')
     # try to set index of test dataframe to Vote ID if not already done
     try:
         test_df.set_index('Vote ID', inplace=True)
     except:
         pass
-    # create a new dataframe with the same index as the original dataframe
+    # # create a new dataframe with the same index as the original dataframe
     accuracy_df = pd.DataFrame(index=test_df.index)
     # add a column for each column in the original dataframe
     for column in test_df.columns:
         accuracy_df[column] = 0
-        #display(accuracy_df)
     # loop through the rows of the test dataframe
     for index in test_df.index:
+        if pd.isna(index):
+            continue
         # loop through the columns of the test dataframe
         for column in test_df.columns:
             # Debugging: Print the types and values
             # print(f"Index: {index}, Column: {column}")
             # print(f"Original DF Value: {original_df.loc[index, column]}, Type: {type(original_df.loc[index, column])}")
             # print(f"Test DF Value: {test_df.loc[index, column]}, Type: {type(test_df.loc[index, column])}")
+            
             # Check if test value is NaN, skip if true
-            test_value = test_df.loc[index, column]
-            original_value = original_df.loc[index, column]
-            if pd.isna(test_value):
+            if pd.isna(test_df.loc[index, column]):
                 continue
+            if pd.isna(original_df.loc[index, column]):
+                continue
+            # get the original and test values
+            original_value = original_df.loc[index, column]
+            test_value = test_df.loc[index, column]
             # check if the value in the test dataframe is within the tolerance interval of the original dataframe
             lower_bound = original_value - tolerance_interval
             upper_bound = original_value + tolerance_interval
@@ -369,6 +377,18 @@ def process_session(voted_docs, party_names, majority_names):
     random_party = get_accuracy_df(voted_docs, random_guess[party_names], 0.05)
     random_majority = get_accuracy_df(voted_docs, random_guess[majority_names], 0.05)
     return random_party[0], random_majority[0]
+
+def get_party_majority_accuracy(original_df, test_df, tolerance_interval, party_names, majority_names):
+    """
+    Combines the functions get_random_guess and get_accuracy_df to calculate the accuracy 
+    of a random guess for party and majority votes individually.
+    Takes as arguents a dataframe of voted documents and the names of the columns for the 
+    party and majority votes.
+    Returns the accuracy for party and majority votes.
+    """
+    acc_party = get_accuracy_df(original_df, test_df[party_names], tolerance_interval)
+    acc_majority = get_accuracy_df(original_df, test_df[majority_names], tolerance_interval)
+    return acc_party[0], acc_majority[0]
 
 def split_select_data(data, training_fraction):
     """"

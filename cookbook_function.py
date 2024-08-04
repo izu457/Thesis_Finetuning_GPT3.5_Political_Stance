@@ -159,7 +159,7 @@ def process_jobs(lr_multiplier, n_epochs, batch_size, train_upload, val_upload, 
                     training_file=train_upload.id,  # file id returned after upload to API
                     validation_file=val_upload.id, # file id returned after upload to API
                     model=model,
-                    suffix="mig_gen",
+                    suffix="full_clas",
                     seed=124,
                     hyperparameters={
                         "n_epochs": epoch,

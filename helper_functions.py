@@ -472,11 +472,14 @@ def parse_string_ls_to_dict(s):
     s = s.replace("'", "")
     # split key value paris from each other
     for item in s.split(', '):
-        # split party names from values
+        # split party names and vote id from values
         parts = item.split(':')
         if len(parts) == 2:
             # turn key value pairs into dictionary
             key, value = parts
+            # strip keys and values from extra spaces
+            key = key.strip()
+            value = value.strip()
             result[key] = value
         #else:
             #print(f"Skipping incorrectly formatted item: {item}")

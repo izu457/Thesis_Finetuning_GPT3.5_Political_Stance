@@ -310,7 +310,8 @@ def get_random_guess(data):
     data['Consensus'] = [random.choice([0, 1]) for _ in range(len(data))]
     return data
 
-def get_accuracy_df (original_df, test_df, tolerance_interval):
+
+def get_accuracy_df (original_df, test_df, tolerance_interval, column_range = None):
     """"
     Function to calculate the accuracy of a test dataframe compared to 
     an original dataframe.
@@ -325,27 +326,30 @@ def get_accuracy_df (original_df, test_df, tolerance_interval):
     # drop lines where there are only NAs
     original_df = original_df.dropna(how='all')
     test_df = test_df.dropna(how='all')
-    # try to set index of test dataframe to Vote ID if not already done
+    # try to set index of dataframes to Vote ID if not already done
     try:
+        original_df.set_index('Vote ID', inplace=True)
         test_df.set_index('Vote ID', inplace=True)
     except:
         pass
-    # # create a new dataframe with the same index as the original dataframe
+    # create a new dataframe with the same index as the original dataframe
     accuracy_df = pd.DataFrame(index=test_df.index)
+
+    # Define the columns to check
+    if column_range is None:
+        columns_to_check = original_df.columns
+    else:
+        columns_to_check = original_df.loc[:, column_range].columns
+
     # add a column for each column in the original dataframe
-    for column in test_df.columns:
+    for column in columns_to_check:
         accuracy_df[column] = 0
     # loop through the rows of the test dataframe
     for index in test_df.index:
         if pd.isna(index):
             continue
         # loop through the columns of the test dataframe
-        for column in test_df.columns:
-            # Debugging: Print the types and values
-            # print(f"Index: {index}, Column: {column}")
-            # print(f"Original DF Value: {original_df.loc[index, column]}, Type: {type(original_df.loc[index, column])}")
-            # print(f"Test DF Value: {test_df.loc[index, column]}, Type: {type(test_df.loc[index, column])}")
-            
+        for column in columns_to_check:
             # Check if test value is NaN, skip if true
             if pd.isna(test_df.loc[index, column]):
                 continue
@@ -363,7 +367,6 @@ def get_accuracy_df (original_df, test_df, tolerance_interval):
     # calculate the accuracy as the sum of the accuracy dataframe divided by the number of cells
     accuracy = accuracy_df.sum().sum() / (accuracy_df.shape[0] * accuracy_df.shape[1])
     return round(accuracy, 4), accuracy_df
-
 
 def process_session(voted_docs, party_names, majority_names):
     """
@@ -386,8 +389,8 @@ def get_party_majority_accuracy(original_df, test_df, tolerance_interval, party_
     party and majority votes.
     Returns the accuracy for party and majority votes.
     """
-    acc_party = get_accuracy_df(original_df, test_df[party_names], tolerance_interval)
-    acc_majority = get_accuracy_df(original_df, test_df[majority_names], tolerance_interval)
+    acc_party = get_accuracy_df(original_df, test_df, tolerance_interval, party_names)
+    acc_majority = get_accuracy_df(original_df, test_df, tolerance_interval, majority_names)
     return acc_party[0], acc_majority[0]
 
 def split_select_data(data, training_fraction):

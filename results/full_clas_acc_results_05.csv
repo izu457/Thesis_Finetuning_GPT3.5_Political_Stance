@@ -1,0 +1,4 @@
+,Accuracy Party,Accuracy Majority,Overall Accuracy
+random guess,0.09400000000000001,0.5,
+standard GPT3.5,0.0094,0.7375,0.2521
+fine-tuned GPT3.5,0.2273,0.9091,0.4545

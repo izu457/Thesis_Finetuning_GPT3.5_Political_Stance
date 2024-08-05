@@ -1,0 +1,7 @@
+,Threshold,Accuracy Party,Accuracy Majority,Overall Accuracy
+standard,0.05,0.0094,0.7375,
+standard,0.1,0.0312,,
+fine-tuned,0.05,0.2273,0.9091,0.4545
+fine-tuned,0.1,0.4318,0.9091,0.5909
+random,0.05,0.09,0.5,
+random,0.1,,0.5,

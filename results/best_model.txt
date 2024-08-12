@@ -1,0 +1,47 @@
+{
+    "object": "list",
+    "data": [
+        {
+            "object": "fine_tuning.job.checkpoint",
+            "id": "ftckpt_wWJSLBOklrG5Zg6gcb8gmN2I",
+            "created_at": 1722638269,
+            "fine_tuned_model_checkpoint": "ft:gpt-3.5-turbo-0125:lse:full-clas:9rvCKoh6",
+            "fine_tuning_job_id": "ftjob-MWW3uqYEdflxMO1kCb40D8K4",
+            "metrics": {
+                "step": 335,
+                "train_loss": 0.27771177887916565,
+                "train_mean_token_accuracy": 0.9322916865348816
+            },
+            "step_number": 335
+        },
+        {
+            "object": "fine_tuning.job.checkpoint",
+            "id": "ftckpt_HUsgkHQX5bgsIWy13rGWDotI",
+            "created_at": 1722638252,
+            "fine_tuned_model_checkpoint": "ft:gpt-3.5-turbo-0125:lse:full-clas:9rvCKWCT:ckpt-step-333",
+            "fine_tuning_job_id": "ftjob-MWW3uqYEdflxMO1kCb40D8K4",
+            "metrics": {
+                "step": 333,
+                "train_loss": 0.2724786102771759,
+                "train_mean_token_accuracy": 0.9302083253860474
+            },
+            "step_number": 333
+        },
+        {
+            "object": "fine_tuning.job.checkpoint",
+            "id": "ftckpt_Y1yxBxmtrHrjD9WJDc9LKkGw",
+            "created_at": 1722637803,
+            "fine_tuned_model_checkpoint": "ft:gpt-3.5-turbo-0125:lse:full-clas:9rvCKwNu:ckpt-step-222",
+            "fine_tuning_job_id": "ftjob-MWW3uqYEdflxMO1kCb40D8K4",
+            "metrics": {
+                "step": 222,
+                "train_loss": 0.3097681403160095,
+                "train_mean_token_accuracy": 0.9290928244590759
+            },
+            "step_number": 222
+        }
+    ],
+    "has_more": false,
+    "first_id": "ftckpt_wWJSLBOklrG5Zg6gcb8gmN2I",
+    "last_id": "ftckpt_Y1yxBxmtrHrjD9WJDc9LKkGw"
+}
